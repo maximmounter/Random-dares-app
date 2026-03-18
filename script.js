@@ -1,22 +1,21 @@
+// ---- API Key ----
+// Paste your Anthropic API key here (get one at console.anthropic.com)
+const API_KEY = 'YOUR_API_KEY_HERE';
+
 // ---- State ----
 let currentDare = null;
 let streak = 0;
 let history = [];
 
-// ---- API Key ----
-// Paste your Anthropic API key here (get one at console.anthropic.com)
-const API_KEY = 'YOUR_API_KEY_HERE';
-
 // ---- DOM refs ----
-const dareCard   = document.getElementById('dareCard');
-const dareText   = document.getElementById('dareText');
-const typePill   = document.getElementById('typePill');
-const diffRow    = document.getElementById('difficultyRow');
-const cardGlow   = document.getElementById('cardGlow');
-const newBtn     = document.getElementById('newBtn');
-const doneBtn    = document.getElementById('doneBtn');
-const skipBtn    = document.getElementById('skipBtn');
-const streakNum  = document.getElementById('streakNum');
+const dareCard    = document.getElementById('dareCard');
+const dareText    = document.getElementById('dareText');
+const typePill    = document.getElementById('typePill');
+const diffRow     = document.getElementById('difficultyRow');
+const newBtn      = document.getElementById('newBtn');
+const doneBtn     = document.getElementById('doneBtn');
+const skipBtn     = document.getElementById('skipBtn');
+const streakNum   = document.getElementById('streakNum');
 const streakBadge = document.getElementById('streakBadge');
 const histSection = document.getElementById('historySection');
 const histList    = document.getElementById('historyList');
@@ -24,10 +23,11 @@ const histList    = document.getElementById('historyList');
 // ---- Fetch a dare from Claude ----
 async function fetchDare() {
   if (!API_KEY || API_KEY === 'YOUR_API_KEY_HERE') {
-    dareText.textContent = 'Add your Anthropic API key at the top of script.js to get started!';
+    dareText.textContent = 'Open script.js and paste your Anthropic API key on line 2!';
     dareText.className = 'dare-text placeholder';
     return;
   }
+
   setLoading(true);
 
   try {
@@ -40,24 +40,28 @@ async function fetchDare() {
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 200,
-        system: `You generate fun morning dares. Each dare is either "fitness" or "silly" type.
-Fitness dares: quick physical challenges (30-second exercises, balance tests, stretches, burpees, etc).
-Silly dares: lighthearted and fun (sing something, do a funny voice, make a face in the mirror, etc).
-Respond ONLY with a raw JSON object, no markdown, no backticks, no preamble:
-{"dare": "Do 15 jumping jacks while humming your favorite song.", "type": "fitness", "difficulty": 2}
-difficulty: 1 = easy, 2 = medium, 3 = hard.`,
+        system: 'You generate fun morning dares. Each dare is either "fitness" or "silly" type. Fitness dares involve quick physical challenges (exercises, stretches, balance tests). Silly dares are lighthearted and fun (sing something, do a funny voice, make a face in the mirror). Respond ONLY with a raw JSON object, no markdown, no backticks, no preamble. Example: {"dare": "Do 15 jumping jacks while humming your favorite song.", "type": "fitness", "difficulty": 2}. difficulty is 1 (easy), 2 (medium), or 3 (hard).',
         messages: [
           {
             role: 'user',
-            content: 'Give me one random morning dare. Alternate between fitness and silly types randomly.'
+            content: 'Give me one random morning dare. Mix between fitness and silly types.'
           }
         ]
       })
     });
 
     const data = await response.json();
+
+    if (!response.ok) {
+      const msg = (data.error && data.error.message) ? data.error.message : JSON.stringify(data);
+      dareText.textContent = 'API error: ' + msg;
+      dareText.className = 'dare-text placeholder';
+      setLoading(false);
+      return;
+    }
+
     const raw = data.content.map(b => b.text || '').join('');
     const clean = raw.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
@@ -66,8 +70,7 @@ difficulty: 1 = easy, 2 = medium, 3 = hard.`,
     renderDare(parsed);
 
   } catch (err) {
-    console.error('Error fetching dare:', err);
-    dareText.textContent = 'Something went wrong — check your connection and try again.';
+    dareText.textContent = 'Error: ' + err.message;
     dareText.className = 'dare-text placeholder';
   }
 
@@ -78,23 +81,18 @@ difficulty: 1 = easy, 2 = medium, 3 = hard.`,
 function renderDare(dare) {
   const isFitness = dare.type === 'fitness';
 
-  // Text
   dareText.textContent = dare.dare;
   dareText.className = 'dare-text';
 
-  // Type pill
   typePill.textContent = isFitness ? 'Fitness' : 'Fun & Silly';
   typePill.className = 'type-pill ' + (isFitness ? 'fitness' : 'silly');
   typePill.style.display = 'inline-block';
 
-  // Difficulty dots
   diffRow.style.display = 'flex';
   setDots(dare.difficulty || 1, isFitness ? 'green' : 'amber');
 
-  // Card glow class
   dareCard.className = 'dare-card ' + (isFitness ? 'fitness-active' : 'silly-active');
 
-  // Enable done/skip
   doneBtn.disabled = false;
   skipBtn.disabled = false;
 }
@@ -131,7 +129,6 @@ function markDone() {
   streak++;
   streakNum.textContent = streak;
   if (streak >= 3) streakBadge.classList.add('hot');
-
   resetCard('Nice one! Ready for another?');
 }
 
@@ -139,7 +136,7 @@ function markDone() {
 function markSkip() {
   if (!currentDare) return;
   addHistory(currentDare.dare, false);
-  resetCard('No worries — grab another dare?');
+  resetCard('No worries - grab another dare?');
 }
 
 // ---- Reset card to idle ----
@@ -163,12 +160,8 @@ function addHistory(dare, done) {
   const li = document.createElement('li');
   li.className = 'history-item';
 
-  const snippet = dare.length > 70 ? dare.slice(0, 70) + '…' : dare;
-
-  li.innerHTML = `
-    <span class="dare-snippet">${snippet}</span>
-    <span class="history-status ${done ? 'status-done' : 'status-skip'}">${done ? 'Done' : 'Skipped'}</span>
-  `;
+  const snippet = dare.length > 70 ? dare.slice(0, 70) + '...' : dare;
+  li.innerHTML = `<span class="dare-snippet">${snippet}</span><span class="history-status ${done ? 'status-done' : 'status-skip'}">${done ? 'Done' : 'Skipped'}</span>`;
 
   histList.appendChild(li);
 }
