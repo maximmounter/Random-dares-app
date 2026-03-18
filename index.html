@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Morning Dare</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="bg-texture"></div>
+
+  <main class="container">
+
+    <header class="app-header">
+      <div class="header-left">
+        <h1 class="app-title">Morning Dare</h1>
+        <p class="app-sub">Your daily chaos, delivered fresh.</p>
+      </div>
+      <div class="streak-badge" id="streakBadge">
+        <span class="streak-num" id="streakNum">0</span>
+        <span class="streak-label">day streak</span>
+      </div>
+    </header>
+
+    <section class="dare-card" id="dareCard">
+      <div class="card-top">
+        <span class="type-pill" id="typePill" style="display:none;"></span>
+        <div class="difficulty-row" id="difficultyRow" style="display:none;">
+          <span class="diff-label">Difficulty</span>
+          <div class="dots">
+            <span class="dot" id="dot1"></span>
+            <span class="dot" id="dot2"></span>
+            <span class="dot" id="dot3"></span>
+          </div>
+        </div>
+      </div>
+      <p class="dare-text" id="dareText">Hit <strong>New Dare</strong> to get your morning challenge.</p>
+      <div class="card-glow" id="cardGlow"></div>
+    </section>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="newBtn" onclick="fetchDare()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 1 1 8 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M10 2.5h3.5V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        New Dare
+      </button>
+      <button class="btn btn-done" id="doneBtn" onclick="markDone()" disabled>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5 6.5-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Done it!
+      </button>
+      <button class="btn btn-skip" id="skipBtn" onclick="markSkip()" disabled>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Skip
+      </button>
+    </div>
+
+    <section class="history-section" id="historySection" style="display:none;">
+      <h2 class="history-title">Today's session</h2>
+      <ul class="history-list" id="historyList"></ul>
+    </section>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
