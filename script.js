@@ -3,6 +3,10 @@ let currentDare = null;
 let streak = 0;
 let history = [];
 
+// ---- API Key ----
+// Paste your Anthropic API key here (get one at console.anthropic.com)
+const API_KEY = 'YOUR_API_KEY_HERE';
+
 // ---- DOM refs ----
 const dareCard   = document.getElementById('dareCard');
 const dareText   = document.getElementById('dareText');
@@ -19,12 +23,22 @@ const histList    = document.getElementById('historyList');
 
 // ---- Fetch a dare from Claude ----
 async function fetchDare() {
+  if (!API_KEY || API_KEY === 'YOUR_API_KEY_HERE') {
+    dareText.textContent = 'Add your Anthropic API key at the top of script.js to get started!';
+    dareText.className = 'dare-text placeholder';
+    return;
+  }
   setLoading(true);
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 200,
