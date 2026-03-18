@@ -1,6 +1,6 @@
 // ---- API Key ----
-// Paste your Anthropic API key here const API_KEY = 'sk-ant-api03-xxxxxx...';
-const API_KEY = 'YOUR_API_KEY_HERE';
+// Paste your Anthropic API key here (get one at console.anthropic.com)
+const API_KEY = 'sk-ant-api03-xxxxxx...';
 
 // ---- State ----
 let currentDare = null;
